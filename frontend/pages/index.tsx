@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ethers } from 'ethers';
-import Greeter from '../../backend/artifacts/contracts/Greeter.sol/Greeter.json';
+import Greeter from '../artifacts/contracts/Greeter.sol/Greeter.json';
 
 declare global {
   interface Window {

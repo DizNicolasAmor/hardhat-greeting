@@ -1,4 +1,4 @@
-require('dotenv').config({path: __dirname + '/.env'});
+require("dotenv").config({ path: __dirname + "/.env" });
 require("@nomiclabs/hardhat-waffle");
 
 // This is a sample Hardhat task. To learn how to create your own go to
@@ -23,9 +23,12 @@ module.exports = {
       chainId: 31337,
       accounts: [
         `${process.env.PRE_FUNDED_PRIVATE_KEY_1}`,
-        `${process.env.PRE_FUNDED_PRIVATE_KEY_2}`
+        `${process.env.PRE_FUNDED_PRIVATE_KEY_2}`,
       ],
-    }
+    },
+  },
+  paths: {
+    artifacts: "../frontend/artifacts",
   },
   solidity: "0.8.4",
 };
