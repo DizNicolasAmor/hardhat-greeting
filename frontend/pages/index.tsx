@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ethers } from 'ethers';
+import Greeter from '../../backend/artifacts/contracts/Greeter.sol/Greeter.json';
 
 declare global {
   interface Window {
@@ -13,6 +14,12 @@ const Home = () => {
   const [defaultAccount, setDefaultAccount] = useState('');
   const [userBalance, setUserBalance] = useState('');
   const [connButtonText, setConnButtonText] = useState('Connect Wallet');
+
+  const [greeting, setGreeting] = useState('');
+
+  const [provider, setProvider] = useState(null);
+  const [signer, setSigner] = useState('');
+  const [contract, setContract] = useState(null);
 
   const connectWalletHandler = () => {
     const hasMetaMask: boolean = window.ethereum && window.ethereum.isMetaMask;
@@ -36,6 +43,7 @@ const Home = () => {
   const accountChangedHandler = (newAccount: string) => {
     setDefaultAccount(newAccount);
     getAccountBalance(newAccount);
+    updateEthers();
   };
 
   const getAccountBalance = (account: string) => {
@@ -51,6 +59,32 @@ const Home = () => {
       });
   };
 
+  const contractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
+
+  const updateEthers = () => {
+    const tempProvider: any = new ethers.providers.Web3Provider(
+      window.ethereum
+    );
+    setProvider(tempProvider);
+
+    const tempSigner: any = tempProvider.getSigner();
+    setSigner(tempSigner);
+
+    const tempContract: any = new ethers.Contract(
+      contractAddress,
+      Greeter.abi,
+      tempSigner
+    );
+    setContract(tempContract);
+
+    console.log({ tempProvider, tempContract, tempSigner });
+  };
+
+  const getGreeting = async () => {
+    const internalGreeting = await contract.greet();
+    setGreeting(internalGreeting);
+  };
+
   return (
     <div>
       <h1>Greeter dApp</h1>
@@ -60,6 +94,9 @@ const Home = () => {
       <div aria-live="assertive" aria-atomic="true">
         {errorMessage}
       </div>
+
+      <button onClick={getGreeting}>GET GREETING FROM SMART CONTRACT</button>
+      <div>{greeting}</div>
     </div>
   );
 };
