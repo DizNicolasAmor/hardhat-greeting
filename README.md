@@ -1,24 +1,57 @@
-### Connecting a wallet or Dapp to Hardhat Network
+# Hardhat-greeting
 
-Hardhat will always spin up an in-memory instance of Hardhat Network on startup by default. It's also possible to run Hardhat Network in a standalone fashion so that external clients can connect to it. This could be MetaMask, your Dapp front-end, or a script.
+This is a basic greeting app built with Hardhat and ReactJS.
 
-To run Hardhat Network in this way, run npx hardhat node:
+**How it works**
+
+There is a Smart contract in the backend that stores a `name`. This name could be updated with `setName` method. Also, there is a `greet` method that return a string that is a greeting that includes that name.
+
+In the frontend, the user can fetch those methods.
+
+## Requirements
+
+- **node** and **npm**
+
+## Setup
+
+### Set up backend locally with Hardhat Network
 
 ```
+# first, go to backend directory
+$ cd backend/
+
+# second, if it is the first time, install dependencies
+$ npm ci
+
+# third, run a Hardhat Network local node
 $ npx hardhat node
 # Started HTTP and WebSocket JSON-RPC server at http://127.0.0.1:8545/
-```
 
-This will expose a JSON-RPC interface to Hardhat Network. To use it connect your wallet or application to http://localhost:8545.
-
-If you want to connect Hardhat to this node to, for example, run a deployment script against it, you simply need to run it using --network localhost.
-
-To try this, start a node with npx hardhat node and re-run the sample script using the network option:
-
-```
+# fourth, in a different console, run the deploy script against this local node
 npx hardhat run scripts/sample-script.js --network localhost
 ```
 
-Congrats! You have created a project, run a Hardhat task, compiled a smart contract, installed a Waffle integration plugin, written and run a test using the Waffle and ethers.js plugins, and deployed a contract.
-
 Docs: https://hardhat.org/getting-started/
+
+### Set up MetaMask to connect this local node
+
+Add a network in your MetaMask settings with the following configuration:
+
+```
+Network name: LOCALHOST
+NEW RPC URL: http://127.0.0.1:8545
+Chain ID: 31337
+```
+
+### Set up frontend with ReactJS
+
+```
+# first, go to the frontend directory
+$ cd frontend/
+
+# second, if it is the first time, install dependencies
+$ npm ci
+
+# third, run frontend
+$ npm run dev
+```
