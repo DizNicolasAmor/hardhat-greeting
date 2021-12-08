@@ -24,9 +24,8 @@ const useGreeter = ({ web3 }: Web3Props) => {
   const fetchGreet = async () => {
     if (!web3) return;
 
-    const contract = new ethers.Contract(address, Greeter.abi, web3);
-
     try {
+      const contract = new ethers.Contract(address, Greeter.abi, web3);
       const greeting = await contract.greet();
       return greeting;
     } catch (error) {
@@ -41,7 +40,7 @@ const useGreeter = ({ web3 }: Web3Props) => {
 
     const signer = web3.getSigner();
     const contract = new ethers.Contract(address, Greeter.abi, signer);
-    const transaction = await contract.setGreeting(name);
+    const transaction = await contract.setName(name);
     await transaction.wait();
   };
 

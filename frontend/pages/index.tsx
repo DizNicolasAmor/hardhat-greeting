@@ -3,13 +3,6 @@ import { providers } from 'ethers';
 import useNetwork from '../hooks/useNetwork';
 import useGreeter from '../hooks/useGreeter';
 
-declare global {
-  interface Window {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ethereum?: any;
-  }
-}
-
 const Home = () => {
   const [network, setNetwork] = useState<providers.Network>();
   const [account, setAccount] = useState<string>();
@@ -65,14 +58,16 @@ const Home = () => {
   };
 
   const getGreeting = () => {
-    fetchGreet().then(setGreeting).catch(setErrorMessage);
+    fetchGreet()
+      .then(setGreeting)
+      .catch((err) => setErrorMessage(err.message));
   };
 
   const handleSetName = () => {
     if (inputRef.current) {
       fetchSetName(inputRef.current.value)
         .then(() => fetchGreet())
-        .catch(setErrorMessage);
+        .catch((err) => setErrorMessage(err.message));
     }
   };
 

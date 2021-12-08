@@ -1,47 +1,50 @@
 import WalletConnectProvider from '@walletconnect/web3-provider';
 import { providers } from 'ethers';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Web3Modal from 'web3modal';
 
 const providerOptions = {
   walletconnect: {
     package: WalletConnectProvider,
-    options: {
-      // infuraId: process.env.REACT_APP_INFURA_ID,
-    },
+    // options: {
+    // infuraId: process.env.REACT_APP_INFURA_ID,
+    // },
   },
 };
-
-const web3Modal = new Web3Modal({
-  cacheProvider: false,
-  providerOptions,
-});
 
 function useNetwork() {
   const [provider, setProvider] = useState<any>();
   const [web3, setWeb3] = useState<providers.Web3Provider>();
+  let web3Modal: Web3Modal | undefined;
 
   const connect = async () => {
-    const provider_ = await web3Modal.connect();
-    setProvider(provider_);
+    web3Modal = new Web3Modal({
+      cacheProvider: false,
+      providerOptions,
+    });
 
-    const web3_ = new providers.Web3Provider(provider_);
-    setWeb3(web3_);
+    const tempProvider = await web3Modal.connect();
+    setProvider(tempProvider);
+
+    const tempWeb3 = new providers.Web3Provider(tempProvider);
+    setWeb3(tempWeb3);
   };
 
   const disconnect = async () => {
-    // explicitly close when wallet connect is used
+    // close provider when walletconnect is used
     if (provider && provider.close) {
       await provider.close();
     }
-    web3Modal.clearCachedProvider();
+    if (web3Modal) {
+      web3Modal.clearCachedProvider();
+    }
 
     setProvider(undefined);
     setWeb3(undefined);
   };
 
   const handleNetwork = async () => {
-    if (typeof web3 === 'undefined') {
+    if (!web3) {
       await connect();
     } else {
       await disconnect();
