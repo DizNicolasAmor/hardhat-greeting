@@ -1,11 +1,11 @@
-// import WalletConnectProvider from '@walletconnect/web3-provider';
+import WalletConnectProvider from '@walletconnect/web3-provider';
 import { providers } from 'ethers';
 import { useState } from 'react';
-// import Web3Modal from 'web3modal';
+import Web3Modal from 'web3modal';
 
 const providerOptions = {
   walletconnect: {
-    // package: WalletConnectProvider,
+    package: WalletConnectProvider,
     options: {
       // infuraId: process.env.REACT_APP_INFURA_ID,
     },
