@@ -1,16 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { providers } from 'ethers';
+import { providers, utils } from 'ethers';
 import useNetwork from '../hooks/useNetwork';
 import useGreeter from '../hooks/useGreeter';
+import CommonSpinner from '../components/CommonSpinner';
 
 const Home = () => {
-  const [network, setNetwork] = useState<providers.Network>();
-  const [account, setAccount] = useState<string>();
-  const [errorMessage, setErrorMessage] = useState('');
-  const [userBalance, setUserBalance] = useState('');
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>('');
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const [greeting, setGreeting] = useState<string>('');
 
-  const [greeting, setGreeting] = useState('');
+  const [network, setNetwork] = useState<providers.Network>();
+  const [account, setAccount] = useState<string>('');
+  const [userBalance, setUserBalance] = useState<string>('');
 
   const [{ web3 }, handleNetwork] = useNetwork();
   const [fetchGreet, fetchSetName] = useGreeter({ web3 });
@@ -19,53 +21,47 @@ const Home = () => {
     if (typeof web3 === 'undefined') {
       resetFields();
     } else {
-      const setNetworkAccount = async () => {
-        web3.detectNetwork().then(setNetwork).catch(setErrorMessage);
-        web3
-          .listAccounts()
-          .then((accounts) => {
-            setAccount(accounts[0]);
-          })
-          .catch(setErrorMessage);
-      };
-      setNetworkAccount();
+      setNetworkAccount(web3);
     }
   }, [web3]);
+
+  const setNetworkAccount = async (web3: providers.Web3Provider) => {
+    web3.detectNetwork().then(setNetwork).catch(setErrorMessage);
+    const accounts = await web3.listAccounts();
+    setAccount(accounts[0]);
+
+    const { _hex } = await web3.getBalance(accounts[0]);
+    setUserBalance(utils.formatEther(_hex));
+  };
 
   const resetFields = () => {
     setNetwork(undefined);
     setAccount('');
+    setUserBalance('');
     setGreeting('');
   };
-
-  /*
-  const getAccountBalance = (account: string) => {
-    window.ethereum
-      .request({ method: 'eth_getBalance', params: [account, 'latest'] })
-      .then((balance: string) => {
-        const formatedBalance: string = ethers.utils.formatEther(balance);
-        setUserBalance(formatedBalance);
-      })
-      .catch((error: unknown) => {
-        console.error(error);
-        setErrorMessage('Error getting balance');
-      });
-  };
-  */
 
   const handleConnect = () => {
     handleNetwork().catch(setErrorMessage);
   };
 
-  const getGreeting = () => {
-    fetchGreet()
-      .then(setGreeting)
-      .catch((err) => setErrorMessage(err.message));
+  const getGreeting = async () => {
+    setIsLoading(true);
+
+    try {
+      const fetchedGreeting = await fetchGreet();
+      setGreeting(fetchedGreeting);
+      setIsLoading(false);
+    } catch (reason) {
+      console.error(reason);
+      setErrorMessage('Error when fetching contract');
+      setIsLoading(false);
+    }
   };
 
   const handleSetName = () => {
-    if (inputRef.current) {
-      fetchSetName(inputRef.current.value)
+    if (inputRef?.current) {
+      fetchSetName(inputRef.current?.value)
         .then(() => fetchGreet())
         .catch((err) => setErrorMessage(err.message));
     }
@@ -84,10 +80,10 @@ const Home = () => {
         {errorMessage}
       </div>
 
-      <button onClick={getGreeting}>GET GREETING FROM SMART CONTRACT</button>
-      <div>{greeting}</div>
+      <button onClick={getGreeting}>Get greeting</button>
+      {isLoading ? <CommonSpinner /> : <div>{greeting}</div>}
       <button onClick={handleSetName}>Set Greeting</button>
-      <input ref={inputRef} placeholder="Set greeting" />
+      <input ref={inputRef} placeholder="Placeholder" />
     </div>
   );
 };
