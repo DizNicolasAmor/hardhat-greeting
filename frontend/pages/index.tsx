@@ -2,8 +2,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import { providers, utils } from 'ethers';
 import useNetwork from '../hooks/useNetwork';
 import useGreeter from '../hooks/useGreeter';
-import CommonSpinner from '../components/CommonSpinner';
-import { Button } from 'react-bootstrap';
+import Title from '../components/Title';
+import NetworkInfo from '../components/NetworkInfo';
+import GreeterSection from '../components/GreeterSection';
 
 const Home = () => {
   const [isLoadingGreet, setIsLoadingGreet] = useState<boolean>(false);
@@ -42,6 +43,7 @@ const Home = () => {
     setAccount('');
     setUserBalance('');
     setGreeting('');
+    setErrorMessage('');
   };
 
   const handleConnect = () => {
@@ -80,69 +82,30 @@ const Home = () => {
     }
   };
 
-  const renderTitle = () => <h1 className="m-3">Greeter dApp</h1>;
+  const propsNetworkInfo = {
+    account,
+    handleConnect,
+    network,
+    userBalance,
+    web3,
+  };
 
-  const renderNetworkInfo = () => (
-    <>
-      <Button className="m-3" variant="primary" onClick={handleConnect}>
-        {web3 ? 'Disconnect' : 'Connect'}
-      </Button>
-
-      <div className="m-3">
-        <div>
-          <strong>Network: </strong>
-          {network?.chainId} {network?.name}
-        </div>
-        <div>
-          <strong>Address: </strong>
-          {account}
-        </div>
-        <div>
-          <strong>Balance:</strong>
-          {userBalance}
-        </div>
-      </div>
-    </>
-  );
-
-  const renderGreeterSection = () => (
-    <>
-      <Button className="m-3" variant="secondary" onClick={getGreeting}>
-        Get greeting
-      </Button>
-      {isLoadingGreet ? <CommonSpinner /> : <div>{greeting}</div>}
-
-      <Button className="m-3" variant="secondary" onClick={handleSetName}>
-        Set Greeting
-      </Button>
-      <div>
-        <input ref={inputRef} placeholder="Your name" />
-      </div>
-      {isLoadingSetName && <CommonSpinner />}
-      {isFetchNameSuccess && (
-        <div
-          className="text-center p-3 text-danger"
-          aria-live="assertive"
-          aria-atomic="true"
-        >
-          Name updated
-        </div>
-      )}
-      <div
-        className="text-center p-3 text-danger"
-        aria-live="assertive"
-        aria-atomic="true"
-      >
-        {errorMessage}
-      </div>
-    </>
-  );
+  const propsGreeterSection = {
+    greeting,
+    getGreeting,
+    handleSetName,
+    inputRef,
+    isFetchNameSuccess,
+    isLoadingGreet,
+    isLoadingSetName,
+    errorMessage,
+  };
 
   return (
     <div className="text-center">
-      {renderTitle()}
-      {renderNetworkInfo()}
-      {renderGreeterSection()}
+      <Title />
+      <NetworkInfo {...propsNetworkInfo} />
+      <GreeterSection {...propsGreeterSection} />
     </div>
   );
 };
