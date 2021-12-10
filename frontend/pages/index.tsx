@@ -3,9 +3,12 @@ import { providers, utils } from 'ethers';
 import useNetwork from '../hooks/useNetwork';
 import useGreeter from '../hooks/useGreeter';
 import CommonSpinner from '../components/CommonSpinner';
+import { Button } from 'react-bootstrap';
 
 const Home = () => {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoadingGreet, setIsLoadingGreet] = useState<boolean>(false);
+  const [isLoadingSetName, setIsLoadingSetName] = useState<boolean>(false);
+  const [isFetchNameSuccess, setIsFetchNameSuccess] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [greeting, setGreeting] = useState<string>('');
@@ -46,44 +49,100 @@ const Home = () => {
   };
 
   const getGreeting = async () => {
-    setIsLoading(true);
+    setErrorMessage('');
+    setIsLoadingGreet(true);
 
     try {
       const fetchedGreeting = await fetchGreet();
       setGreeting(fetchedGreeting);
-      setIsLoading(false);
+      setIsLoadingGreet(false);
     } catch (reason) {
       console.error(reason);
       setErrorMessage('Error when fetching contract');
-      setIsLoading(false);
+      setIsLoadingGreet(false);
     }
   };
 
-  const handleSetName = () => {
-    if (inputRef?.current) {
-      fetchSetName(inputRef.current?.value)
-        .then(() => fetchGreet())
-        .catch((err) => setErrorMessage(err.message));
+  const handleSetName = async () => {
+    if (!inputRef?.current) return;
+
+    setErrorMessage('');
+    setIsLoadingSetName(true);
+
+    try {
+      await fetchSetName(inputRef.current?.value);
+      setIsFetchNameSuccess(true);
+      setIsLoadingSetName(false);
+    } catch (reason) {
+      console.error(reason);
+      setErrorMessage('Error when fetching contract');
+      setIsLoadingSetName(false);
     }
   };
 
-  return (
-    <div>
-      <h1>Greeter dApp</h1>
-      <button onClick={handleConnect}>{web3 ? 'Disconnect' : 'Connect'}</button>
-      <div>
-        Network: {network?.chainId} {network?.name}
+  const renderTitle = () => <h1 className="m-3">Greeter dApp</h1>;
+
+  const renderNetworkInfo = () => (
+    <>
+      <Button className="m-3" variant="primary" onClick={handleConnect}>
+        {web3 ? 'Disconnect' : 'Connect'}
+      </Button>
+
+      <div className="m-3">
+        <div>
+          <strong>Network: </strong>
+          {network?.chainId} {network?.name}
+        </div>
+        <div>
+          <strong>Address: </strong>
+          {account}
+        </div>
+        <div>
+          <strong>Balance:</strong>
+          {userBalance}
+        </div>
       </div>
-      <div>Address: {account}</div>
-      <div>Balance: {userBalance}</div>
-      <div aria-live="assertive" aria-atomic="true">
+    </>
+  );
+
+  const renderGreeterSection = () => (
+    <>
+      <Button className="m-3" variant="secondary" onClick={getGreeting}>
+        Get greeting
+      </Button>
+      {isLoadingGreet ? <CommonSpinner /> : <div>{greeting}</div>}
+
+      <Button className="m-3" variant="secondary" onClick={handleSetName}>
+        Set Greeting
+      </Button>
+      <div>
+        <input ref={inputRef} placeholder="Your name" />
+      </div>
+      {isLoadingSetName && <CommonSpinner />}
+      {isFetchNameSuccess && (
+        <div
+          className="text-center p-3 text-danger"
+          aria-live="assertive"
+          aria-atomic="true"
+        >
+          Name updated
+        </div>
+      )}
+      <div
+        className="text-center p-3 text-danger"
+        aria-live="assertive"
+        aria-atomic="true"
+      >
         {errorMessage}
       </div>
+    </>
+  );
 
-      <button onClick={getGreeting}>Get greeting</button>
-      {isLoading ? <CommonSpinner /> : <div>{greeting}</div>}
-      <button onClick={handleSetName}>Set Greeting</button>
-      <input ref={inputRef} placeholder="Placeholder" />
+  return (
+    <div className="text-center">
+      {renderTitle()}
+      {renderNetworkInfo()}
+      {renderGreeterSection()}
     </div>
   );
 };
