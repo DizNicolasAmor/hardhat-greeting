@@ -27,7 +27,9 @@ $ npm ci
 $ npx hardhat node
 # Started HTTP and WebSocket JSON-RPC server at http://127.0.0.1:8545/
 
-# fourth, in a different console, run the deploy script against this local node
+# fourth, create an .env file, similar to .env.example and replace the values with your environment variables.
+
+# fifth, in a different console, run the deploy script against this local node
 npx hardhat run scripts/sample-script.js --network localhost
 ```
 
