@@ -12,6 +12,8 @@ In the frontend, the user can fetch those methods.
 
 - **node** and **npm**
 
+Docs: https://nodejs.org/en/
+
 ## Setup
 
 ### Set up backend locally with Hardhat Network
@@ -57,3 +59,13 @@ $ npm ci
 # third, run frontend
 $ npm run dev
 ```
+
+## Known issues
+
+- MetaMask - RPC Error
+
+  ```
+  MetaMask - RPC Error: [ethjs-query] while formatting outputs from RPC '{"value":{"code":-32603,"data":{"code":-32000,"message":"Nonce too high. Expected nonce to be 1 but got 4. Note that transactions can't be queued when automining."}}}'
+  ```
+
+If you are using Metamask and get this error, reset your Metamask account: go to `Settings > Advanced > Reset Account` and then hard reload the browser.
